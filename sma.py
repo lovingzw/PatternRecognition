@@ -17,7 +17,7 @@ def moving_average(series, window, price_type):
     zipsma = []
     for e in range(length - window + 1):
         sma = np.mean(price[e:e + window])
-        date = series.iat[e + window - 1, 0]
-        zipsma.append([date, sma])
+        # date = series.iat[e + window - 1, 0]
+        zipsma.append([e, sma])
 
     return zipsma

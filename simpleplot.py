@@ -1,24 +1,27 @@
 import matplotlib.pyplot as plt
 from scipy import interpolate
 import numpy as np
-# import mpl_finance as mpf
+from matplotlib.pylab import num2date
+import mpl_finance as mpf
 
 
-# must find all the arcs before drawing. (run arc_union first)
 def arc_plot(value, axis, date_index, arc_type):
     for index in date_index:
-        arc_length = index[1] - index[0] + 1
-        i = index[0]
-        spline_x = axis[i:i + arc_length]
-        spline_y = value[i:i + arc_length]
+        print(index[0])
+        spline_x = axis[index[0]:index[1] + 1]
+        spline_y = value[index[0]:index[1] + 1]
         spline_min = np.min(spline_y) * 1.02
 
         if arc_type == 'symmetric':
-            spline_min_index = int((spline_x[0] + spline_x[-1]) / 2)
+            # spline_min_index = int((spline_x[0] + spline_x[-1]) / 2)
+            spline_min_index = spline_x[spline_y.index(min(spline_y))]
         elif arc_type == 'asymmetric':
-            spline_min_index = spline_y.index(min(spline_y))
+            spline_min_index = spline_x[spline_y.index(min(spline_y))]
         else:
-            spline_min_index = spline_y.index(min(spline_y))
+            spline_min_index = spline_x[spline_y.index(min(spline_y))]
+
+        if spline_min_index >= index[1] - 1:
+            spline_min_index = int((spline_x[0] + spline_x[-1]) / 2)
 
         spline_target_x = [spline_x[0], spline_min_index, spline_min_index + 1, spline_x[-1]]
         spline_target_y = [spline_y[0], spline_min, spline_min, spline_y[-1]]
@@ -26,7 +29,7 @@ def arc_plot(value, axis, date_index, arc_type):
         f = interpolate.interp1d(spline_target_x, spline_target_y, kind='quadratic')
         spline_itp_y = f(spline_itp_x)
 
-        horizon_x = [spline_target_x[0], spline_target_x[-1]]
+        horizon_x = [num2date(spline_target_x[0]), num2date(spline_target_x[-1])]
         horizon_y = [spline_y[0], spline_y[-1]]
 
         plt.plot(horizon_x, horizon_y, 'blue')
